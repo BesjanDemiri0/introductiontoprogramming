@@ -43,20 +43,27 @@ int main(void)
 
     // TODO: Compute L and S (averages per 100 words)
     //   Hint: cast to float before dividing to avoid integer division!
-    //   float L = 100.0 * letters / words;
-    //   float S = 100.0 * sentences / words;
-
+    float L = 100.0 * letters / words;
+    float S = 100.0 * sentences / words;
 
     // TODO: Apply the Coleman-Liau formula
     //   index = round(0.0588 * L - 0.296 * S - 15.8)
     //   Use round() from <math.h> and store as int
-
+    int index = round(0.0588 * L - 0.296 * S - 15.8);
 
     // TODO: Print the grade level
-    //   if index >= 16  → printf("Grade 16+\n");
-    //   if index < 1    → printf("Before Grade 1\n");
-    //   otherwise       → printf("Grade %i\n", index);
-
+    if (index >= 16)
+    {
+        printf("Grade 16+\n");
+    }
+    else if (index < 1)
+    {
+        printf("Before Grade 1\n");
+    }
+    else
+    {
+        printf("Grade %i\n", index);
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -71,7 +78,13 @@ int count_letters(string text)
 
     // TODO: Loop through each character of text
     // TODO: Increment count if the character is alphabetic
-
+    for (int i = 0, n = strlen(text); i < n; i++)
+    {
+        if (isalpha(text[i]))
+        {
+            count++;
+        }
+    }
 
     return count;
 }
@@ -88,7 +101,13 @@ int count_words(string text)
     int count = 1; // Start at 1: at least one word if text is non-empty
 
     // TODO: Loop through text and count spaces
-
+    for (int i = 0, n = strlen(text); i < n; i++)
+    {
+        if (text[i] == ' ')
+        {
+            count++;
+        }
+    }
 
     return count;
 }
@@ -105,7 +124,13 @@ int count_sentences(string text)
 
     // TODO: Loop through text
     // TODO: Increment count whenever you see '.', '!', or '?'
-
+    for (int i = 0, n = strlen(text); i < n; i++)
+    {
+        if (text[i] == '.' || text[i] == '!' || text[i] == '?')
+        {
+            count++;
+        }
+    }
 
     return count;
 }
