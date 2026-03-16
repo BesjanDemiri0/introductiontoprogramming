@@ -55,38 +55,36 @@ int main(void)
 // Prompt the user for a non-negative number of cents
 int get_cents(void)
 {
-    // TODO: Use a do-while loop with get_int("Change owed: ")
-    //       Re-prompt if the value is negative.
-
-
-    // TODO: return the valid value
-
+    int cents;
+    do
+    {
+        cents = get_int("Change owed: ");
+    }
+    while (cents < 0);
+    
+    return cents;
 }
 
 // Return how many quarters fit in `cents`
 int calculate_quarters(int cents)
 {
-    // TODO: Return the number of quarters (integer division by 25)
-
+    return cents / 25;
 }
 
 // Return how many dimes fit in `cents`
 int calculate_dimes(int cents)
 {
-    // TODO
-
+    return cents / 10;
 }
 
 // Return how many nickels fit in `cents`
 int calculate_nickels(int cents)
 {
-    // TODO
-
+    return cents / 5;
 }
 
 // Return how many pennies fit in `cents`
 int calculate_pennies(int cents)
 {
-    // TODO
-
+    return cents; 
 }
