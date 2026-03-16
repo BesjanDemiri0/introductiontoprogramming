@@ -28,58 +28,101 @@
 //   VISA:       13 or 16 digits, starts with 4
 // ---------------------------------------------------------------------------
 
+#include <cs50.h>
+#include <stdio.h>
+
 int main(void)
 {
-    // TODO: Prompt user for a credit card number using get_long()
-    //       Hint: card numbers can exceed int range — use `long`
-
+    // STEP 0: Prompt user for a credit card number
+    long number = get_long("Number: ");
 
     // -----------------------------------------------------------------------
     // STEP 1: Count the number of digits
     // -----------------------------------------------------------------------
     int length = 0;
+    long temp_n = number;
 
-    // TODO: Use a loop to count digits.
-    //       Hint: make a copy of the number, divide by 10 each iteration,
-    //       stop when the copy reaches 0.
+    while (temp_n > 0)
+    {
+        temp_n = temp_n / 10;
+        length++;
+    }
 
+    // Check if length is even valid before proceeding
+    if (length != 13 && length != 15 && length != 16)
+    {
+        printf("INVALID\n");
+        return 0;
+    }
 
     // -----------------------------------------------------------------------
     // STEP 2: Apply Luhn's Algorithm
     // -----------------------------------------------------------------------
-    int sum_doubled = 0;  // sum of doubled every-other digits
-    int sum_rest    = 0;  // sum of the remaining digits
+    int sum_doubled = 0;
+    int sum_rest = 0;
+    long n = number;
 
-    // TODO: Loop through each digit of the card number.
-    //       Use modulo 10 to extract the last digit, then divide by 10.
-    //       Use a counter (i) to track position: i=0 is the LAST digit,
-    //       i=1 is second-to-last (this is the FIRST one to double), etc.
-    //
-    //       If position i is ODD  → double the digit, handle >= 10 case,
-    //                                add to sum_doubled
-    //       If position i is EVEN → add directly to sum_rest
+    for (int i = 0; i < length; i++)
+    {
+        // Get the last digit of the current number
+        int digit = n % 10;
 
+        if (i % 2 == 1) // If position is ODD (starting from 0 as the last digit)
+        {
+            int product = digit * 2;
+            // If product is 12, we add 1 + 2. 
+            // product % 10 gets the 2, product / 10 gets the 1.
+            sum_doubled += (product % 10) + (product / 10);
+        }
+        else // If position is EVEN
+        {
+            sum_rest += digit;
+        }
+
+        // Remove the last digit from the number
+        n = n / 10;
+    }
 
     // -----------------------------------------------------------------------
     // STEP 3: Check validity
     // -----------------------------------------------------------------------
-    // TODO: If (sum_doubled + sum_rest) % 10 != 0, print INVALID and return.
-
+    if ((sum_doubled + sum_rest) % 10 != 0)
+    {
+        printf("INVALID\n");
+        return 0;
+    }
 
     // -----------------------------------------------------------------------
     // STEP 4: Identify card type
     // -----------------------------------------------------------------------
-    // TODO: Extract the first two digits of the card number.
-    //       Hint: keep dividing by 10 until only 2 digits remain.
+    
+    // Extract the first two digits
+    long first_two = number;
+    while (first_two >= 100)
+    {
+        first_two /= 10;
+    }
 
+    // Identify brand
+    // AMEX: 15 digits, starts with 34 or 37
+    if (length == 15 && (first_two == 34 || first_two == 37))
+    {
+        printf("AMEX\n");
+    }
+    // MASTERCARD: 16 digits, starts with 51–55
+    else if (length == 16 && (first_two >= 51 && first_two <= 55))
+    {
+        printf("MASTERCARD\n");
+    }
+    // VISA: 13 or 16 digits, starts with 4
+    else if ((length == 13 || length == 16) && (first_two / 10 == 4))
+    {
+        printf("VISA\n");
+    }
+    else
+    {
+        printf("INVALID\n");
+    }
 
-    // TODO: Use if/else if to check length + starting digits:
-    //
-    //   AMEX:       length == 15 && (first2 == 34 || first2 == 37)
-    //   MASTERCARD: length == 16 && first2 >= 51 && first2 <= 55
-    //   VISA:       (length == 13 || length == 16) && first digit == 4
-    //               Hint for VISA: first2 / 10 == 4
-    //   Otherwise:  INVALID
-
-
+    return 0;
 }
