@@ -1,3 +1,8 @@
+code
+C
+download
+content_copy
+expand_less
 // hello.c
 // CS50x - Week 1, Problem Set 1
 //
@@ -19,8 +24,8 @@
 int main(void)
 {
     // TODO: Prompt the user for their name using get_string()
-
+    string name = get_string("What is your name? ");
 
     // TODO: Print "hello, " followed by their name using printf()
-
+    printf("hello, %s\n", name);
 }
