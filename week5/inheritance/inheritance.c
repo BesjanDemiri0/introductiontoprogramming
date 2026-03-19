@@ -1,20 +1,4 @@
 // CS50x Week 5 — Lab: Inheritance
-// Simulate the inheritance of blood types across three generations.
-//
-// Blood types are determined by two alleles: A, B, or O.
-// Each person inherits one allele from each parent, chosen at random.
-//
-// Generation diagram:
-//   Grandparent 1 ──┐
-//                    ├── Parent 1 ──┐
-//   Grandparent 2 ──┘              ├── Child
-//   Grandparent 3 ──┐              │
-//                    ├── Parent 2 ──┘
-//   Grandparent 4 ──┘
-//
-// The family is represented as a tree of `person` structs linked by pointers.
-// ✏️  YOUR CODE: implement create_family() and free_family() below.
-
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,18 +18,20 @@ typedef struct person
 person *create_family(int generations);
 void free_family(person *p);
 void print_family(person *p, int generation);
-void print_codes(void);
 char random_allele(void);
 
-// ---------------------------------------------------------------------------
-// main — do not modify
-// ---------------------------------------------------------------------------
 int main(void)
 {
+    // Seed random number generator
     srand(time(0));
 
+    // Create a new family with three generations
     person *p = create_family(GENERATIONS);
+
+    // Print family tree of blood types
     print_family(p, 0);
+
+    // Free memory
     free_family(p);
 
     return 0;
@@ -54,106 +40,73 @@ int main(void)
 // ---------------------------------------------------------------------------
 // TODO 1: create_family
 // ---------------------------------------------------------------------------
-// Allocate (malloc) a new person and populate their alleles and parents.
-//
-// Parameters:
-//   generations — how many generations remain to create
-//                 (GENERATIONS for the child, 1 for grandparents)
-//
-// Rules:
-//   If generations > 1:
-//     ├── Recursively create TWO parents: create_family(generations - 1)
-//     ├── Randomly inherit one allele from parent[0] (alleles[0] or alleles[1])
-//     └── Randomly inherit one allele from parent[1]
-//
-//   If generations == 1 (oldest generation — no parents):
-//     ├── Set parents[0] = NULL and parents[1] = NULL
-//     └── Randomly assign BOTH alleles using random_allele()
-//
-// HINT: malloc a new person:
-//   person *p = malloc(sizeof(person));
-//   if (p == NULL) return NULL;
-//
-// HINT: pick a random allele from a parent:
-//   p->alleles[0] = p->parents[0]->alleles[rand() % 2];
-//
-// Returns: pointer to the newly created person
-// ---------------------------------------------------------------------------
 person *create_family(int generations)
 {
-    // TODO: allocate memory for a new person
+    // Allocate memory for a new person
     person *p = malloc(sizeof(person));
     if (p == NULL)
     {
         return NULL;
     }
 
+    // If there are still generations left to create
     if (generations > 1)
     {
-        // TODO: recursively create two parents
-        // p->parents[0] = create_family(generations - 1);
-        // p->parents[1] = create_family(generations - 1);
+        // Recursively create two parents
+        p->parents[0] = create_family(generations - 1);
+        p->parents[1] = create_family(generations - 1);
 
-        // TODO: randomly inherit one allele from each parent
-        // p->alleles[0] = p->parents[0]->alleles[rand() % 2];
-        // p->alleles[1] = p->parents[1]->alleles[rand() % 2];
+        // Randomly inherit one allele from each parent
+        // rand() % 2 results in 0 or 1, picking a random allele from the parent's pair
+        p->alleles[0] = p->parents[0]->alleles[rand() % 2];
+        p->alleles[1] = p->parents[1]->alleles[rand() % 2];
     }
+    // If this is the oldest generation (base case)
     else
     {
-        // TODO: oldest generation — no parents, random alleles
-        // p->parents[0] = NULL;
-        // p->parents[1] = NULL;
-        // p->alleles[0] = random_allele();
-        // p->alleles[1] = random_allele();
+        // Set parent pointers to NULL
+        p->parents[0] = NULL;
+        p->parents[1] = NULL;
+
+        // Randomly assign both alleles
+        p->alleles[0] = random_allele();
+        p->alleles[1] = random_allele();
     }
 
+    // Return the newly created person
     return p;
 }
 
 // ---------------------------------------------------------------------------
 // TODO 2: free_family
 // ---------------------------------------------------------------------------
-// Recursively free the entire family tree rooted at p.
-//
-// Rules (IMPORTANT — order matters!):
-//   1. Base case: if p is NULL, return immediately.
-//   2. Recursively free parents FIRST (before freeing p itself):
-//        free_family(p->parents[0]);
-//        free_family(p->parents[1]);
-//   3. Then free p itself: free(p);
-//
-// WHY order matters:
-//   If you free(p) first, p->parents becomes inaccessible → memory leak!
-//   Always free children before parents (post-order traversal).
-// ---------------------------------------------------------------------------
 void free_family(person *p)
 {
-    // TODO: base case — if p is NULL, return
+    // Base case: if p is NULL, there is nothing to free
     if (p == NULL)
     {
         return;
     }
 
-    // TODO: recursively free both parents first
+    // Recursively free both parents first
+    // This ensures we don't lose the pointers to the parents before we can free them
+    free_family(p->parents[0]);
+    free_family(p->parents[1]);
 
-    // TODO: then free this person
+    // After parents are freed, free the current person
+    free(p);
 }
 
 // ---------------------------------------------------------------------------
-// Distribution code below — do not modify
+// Distribution code below
 // ---------------------------------------------------------------------------
 
-// Print each family member and their blood type
 void print_family(person *p, int generation)
 {
     if (p == NULL)
     {
         return;
     }
-
-    // Print parents before child
-    print_family(p->parents[0], generation + 1);
-    print_family(p->parents[1], generation + 1);
 
     // Indent based on generation
     for (int i = 0; i < generation * INDENT_LENGTH; i++)
@@ -174,12 +127,19 @@ void print_family(person *p, int generation)
     }
     else
     {
+        for (int i = 0; i < generation - 2; i++)
+        {
+            printf("Great-");
+        }
         printf("Grandparent (Generation %i): blood type %c%c\n",
                generation, p->alleles[0], p->alleles[1]);
     }
+
+    // Print parents of current person
+    print_family(p->parents[0], generation + 1);
+    print_family(p->parents[1], generation + 1);
 }
 
-// Randomly choose an allele: 'A', 'B', or 'O'
 char random_allele(void)
 {
     int r = rand() % 3;
